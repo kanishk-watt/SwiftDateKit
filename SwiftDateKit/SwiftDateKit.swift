@@ -94,7 +94,7 @@ public final class SwiftDateKit {
         
         var weekdaysArray = [NSLocalizedString("sunday", comment: "sunday"),NSLocalizedString("monday", comment: "monday"),NSLocalizedString("tuesday", comment: "tuesday"),NSLocalizedString("wednesday", comment: "wednesday"),NSLocalizedString("thursday", comment: "thursday"),NSLocalizedString("friday", comment: "friday"),NSLocalizedString("saturday", comment: "saturday")]
         if(shortName){
-            weekdaysArray = formatter.shortStandaloneWeekdaySymbols as! [String]
+            weekdaysArray = formatter.shortStandaloneWeekdaySymbols!
         }
         var returnDays: [String] = []
         for index in indexes{
