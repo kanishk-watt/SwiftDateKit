@@ -9,8 +9,14 @@ import Foundation
 
 public final class SwiftDateKit {
     
+    static public let instance = SwiftDateKit()
+    
+    private init() {
+        
+    }
+    
     // DL Date functions
-    static public func dateToDLTime(_ date:Date) -> String {
+    public func dateToDLTime(_ date:Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "h:mm:ss a"
         let result = formatter.string(from: date)
@@ -18,53 +24,71 @@ public final class SwiftDateKit {
         return result
     }
     
-    static public func convertArrayOfDaysOfWeekToIndexArray(_ daysOfWeek:[String]) -> [String]{
-        let weekdaysArray = [NSLocalizedString("sunday", comment: "sunday"),NSLocalizedString("monday", comment: "monday"),NSLocalizedString("tuesday", comment: "tuesday"),NSLocalizedString("wednesday", comment: "wednesday"),NSLocalizedString("thursday", comment: "thursday"),NSLocalizedString("friday", comment: "friday"),NSLocalizedString("saturday", comment: "saturday")]
+    func getWeekdaysArray() -> [String] {
+        return [NSLocalizedString("\(Days.Sunday)", comment: "\(Days.Sunday)"),NSLocalizedString("\(Days.Monday)", comment: "\(Days.Monday)"),NSLocalizedString("\(Days.Tuesday)", comment: "\(Days.Tuesday)"),NSLocalizedString("\(Days.Wednesday)", comment: "\(Days.Wednesday)"),NSLocalizedString("\(Days.Thursday)", comment: "\(Days.Thursday)"),NSLocalizedString("\(Days.Friday)", comment: "\(Days.Friday)"),NSLocalizedString("\(Days.Saturday)", comment: "\(Days.Saturday)")]
+    }
+    
+     public func convertArrayOfDaysOfWeekToIndexArray(_ daysOfWeek:[String]) -> [String]{
+        let weekdaysArray = getWeekdaysArray()
         var returnIndexes: [String] = []
         for day in daysOfWeek{
             if let indexExists = weekdaysArray.indexOfObject(weekdaysArray, object: day){
-                returnIndexes += ["\(indexExists)"]
+                returnIndexes += ["\(indexExists + 1)"]
             }
         }
         
         return returnIndexes
     }
     
-    static public func convertArrayOfIndexesToDaysOfWeekArray(_ indexes:[String],shortName: Bool) -> [String]{
+     public func convertArrayOfIndexesToDaysOfWeekArray(_ indexes:[String], shortName: Bool) -> [String]{
         
         let formatter = DateFormatter()
         
-        var weekdaysArray = [NSLocalizedString("sunday", comment: "sunday"),NSLocalizedString("monday", comment: "monday"),NSLocalizedString("tuesday", comment: "tuesday"),NSLocalizedString("wednesday", comment: "wednesday"),NSLocalizedString("thursday", comment: "thursday"),NSLocalizedString("friday", comment: "friday"),NSLocalizedString("saturday", comment: "saturday")]
-        if(shortName){
+        var weekdaysArray = getWeekdaysArray()
+        if shortName {
             weekdaysArray = formatter.shortStandaloneWeekdaySymbols!
         }
         var returnDays: [String] = []
         for index in indexes{
             if let asInt = Int(index) {
-                returnDays += [weekdaysArray[asInt]]
+                returnDays += [weekdaysArray[asInt - 1]]
                 
             }
-            
         }
         return returnDays
     }
+    
+    public func convertArrayOfIndexesToDaysOfWeekArray(_ indexes:[Int], shortName: Bool) -> [String]{
+       
+       let formatter = DateFormatter()
+       
+       var weekdaysArray = getWeekdaysArray()
+       if shortName {
+           weekdaysArray = formatter.shortStandaloneWeekdaySymbols!
+       }
+       var returnDays: [String] = []
+       for index in indexes {
+           returnDays += [weekdaysArray[index - 1]]
+       }
+       return returnDays
+   }
     
     public func timeString(date : Date) -> String {
         var time_interval: TimeInterval = date.timeIntervalSince(Date())
         if time_interval < 0 {
             time_interval = 0
         }
-        return SwiftDateKit.timeStringWith(time_interval: time_interval)
+        return self.timeStringWith(time_interval: time_interval)
     }
     
-    static public func timeStringWith(time_interval: TimeInterval) -> String {
+     public func timeStringWith(time_interval: TimeInterval) -> String {
         let hours = Int(time_interval) / 3600
         let minutes = Int(time_interval) / 60 % 60
         let seconds = Int(time_interval) % 60
         return String(format:"%02i:%02i:%02i", hours, minutes, seconds)
     }
     
-    static public func makeTimeString(_ value: Int) -> String {
+     public func makeTimeString(_ value: Int) -> String {
         let seconds = value
         
         let hrValue = seconds/3600
@@ -88,22 +112,9 @@ public final class SwiftDateKit {
         return tempStr
     }
     
-    static public func convertArrayOfIntIndexesToStringDaysOfWeekArray(_ indexes:[Int],shortName: Bool) -> [String]{
-        
-        let formatter = DateFormatter()
-        
-        var weekdaysArray = [NSLocalizedString("sunday", comment: "sunday"),NSLocalizedString("monday", comment: "monday"),NSLocalizedString("tuesday", comment: "tuesday"),NSLocalizedString("wednesday", comment: "wednesday"),NSLocalizedString("thursday", comment: "thursday"),NSLocalizedString("friday", comment: "friday"),NSLocalizedString("saturday", comment: "saturday")]
-        if(shortName){
-            weekdaysArray = formatter.shortStandaloneWeekdaySymbols!
-        }
-        var returnDays: [String] = []
-        for index in indexes{
-            returnDays += [weekdaysArray[index]]
-        }
-        return returnDays
-    }
+     
     
-    func stringFromTimeIntervalShort(_ time : TimeInterval) -> String? {
+    public func stringFromTimeIntervalShort(_ time : TimeInterval) -> String? {
         let formatter = DateComponentsFormatter()
         formatter.unitsStyle = DateComponentsFormatter.UnitsStyle.abbreviated
         formatter.allowedUnits = [NSCalendar.Unit.day, NSCalendar.Unit.hour, NSCalendar.Unit.minute]
@@ -112,7 +123,7 @@ public final class SwiftDateKit {
         return formatter.string(from: time)
     }
     
-    func countDownTimeToDate(date : Date) -> String {
+    public func countDownTimeToDate(date : Date) -> String {
         if self.dayMonthYearString(date: Date()) == self.dayMonthYearString(date: date) {
             return "Today"
         } else if self.isThisDateFuture(date : date) {
@@ -145,7 +156,7 @@ public final class SwiftDateKit {
         return "Ended"
     }
     
-    func getSmallDisplayString(date : Date) -> String? {
+    public func getSmallDisplayString(date : Date) -> String? {
         let duration = Date().timeIntervalSince(date)
         
         var string = ""
@@ -173,7 +184,7 @@ public final class SwiftDateKit {
         return string.numbers == "1" ? "\(string) ago" : "\(string)s ago"
     }
     
-    func getVerySmallDisplayString(date : Date) -> String? {
+    public func getVerySmallDisplayString(date : Date) -> String? {
         let duration = Date().timeIntervalSince(date)
         
         let currentDate = Date()
@@ -208,19 +219,19 @@ public final class SwiftDateKit {
         }
     }
     
-    func getCurrentMonth(date : Date) -> String {
-        return SwiftDateKit.stringFromDate(date, format: "MMMM")
+    public func getCurrentMonth(date : Date) -> String {
+        return self.stringFromDate(date, format: "MMMM")
     }
     
-    func getDayOfWeekForDate(date : Date) -> String {
-        return SwiftDateKit.stringFromDate(date, format: "E")
+    public func getDayOfWeekForDate(date : Date) -> String {
+        return self.stringFromDate(date, format: "E")
     }
     
-    func getDateNumberForDate(date : Date) -> String {
-        return SwiftDateKit.stringFromDate(date, format: "d")
+    public func getDateNumberForDate(date : Date) -> String {
+        return self.stringFromDate(date, format: "d")
     }
     
-    func dayMonthString(date : Date) -> String {
+    public func dayMonthString(date : Date) -> String {
         var suffix = ""
         switch Int(self.getDateNumberForDate(date : date))! {
         case 1, 21, 31: suffix = "st"
@@ -231,32 +242,32 @@ public final class SwiftDateKit {
         return "\(self.getDateNumberForDate(date: date))\(suffix) \(self.getCurrentMonth(date: date))"
     }
     
-    func dayMonthYearString(date : Date) -> String {
-        return SwiftDateKit.stringFromDate(date, format: "d MMMM yyyy")
+    public func dayMonthYearString(date : Date) -> String {
+        return self.stringFromDate(date, format: "d MMMM yyyy")
     }
     
-    func fullStringDate(date : Date) -> String {
-        return SwiftDateKit.stringFromDate(date, format: "EEEE\nd MMMM yyyy")
+    public func fullStringDate(date : Date) -> String {
+        return self.stringFromDate(date, format: "EEEE\nd MMMM yyyy")
     }
     
-    func getkey(date : Date) -> String {
-        return SwiftDateKit.stringFromDate(date, format: SwiftDateKit.getGraphDateFormat())
+    public func getkey(date : Date) -> String {
+        return self.stringFromDate(date, format: self.getGraphDateFormat())
     }
     
-    static public func dateFromString(_ dateString : String) -> Date? {
-        return dateFromString(dateString, format: SwiftDateKit.getGraphDateFormat())
+    public func dateFromString(_ dateString : String) -> Date? {
+        return self.dateFromString(dateString, format: self.getGraphDateFormat())
     }
     
     public func normalStringFromDate(date : Date) -> String {
-        return  SwiftDateKit.stringFromDate(date, format: "M-d, H:m:s")
+        return self.stringFromDate(date, format: "M-d, H:m:s")
     }
     
-    static public func standdardStringFromDate(_ date:Date) -> String {
-        return stringFromDate(date, format: "yyyy-MM-dd")
+     public func standdardStringFromDate(_ date:Date) -> String {
+         return self.stringFromDate(date, format: "yyyy-MM-dd")
     }
     
     // General Date functions
-    static public func stringToLocalizedDate(_ dateString:String, dateFormat:String, tzName:String) -> Date {
+     public func stringToLocalizedDate(_ dateString:String, dateFormat:String, tzName:String) -> Date {
         let aDate = self.dateFromString(dateString, format: dateFormat)
         
         
@@ -264,15 +275,15 @@ public final class SwiftDateKit {
     }
     
     
-    static public func dateFromMapKey(_ keyDate:String) -> Date? {
+     public func dateFromMapKey(_ keyDate:String) -> Date? {
         return dateFromString(keyDate, format: "EEEE, MMMM dd, yyyy")
     }
     
-    static public func stringForMapKey(_ date:Date) -> String {
+     public func stringForMapKey(_ date:Date) -> String {
         return stringFromDate(date, format: "EEEE, MMMM d, yyyy")
     }
     
-    static public func convertStringDate(_ fromString:String,withFormat:String,toFormat:String) -> String {
+     public func convertStringDate(_ fromString:String,withFormat:String,toFormat:String) -> String {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = withFormat
         
@@ -283,7 +294,7 @@ public final class SwiftDateKit {
     }
     
     
-    static public func stringFromDate(_ date:Date, format:String) -> String {
+     public func stringFromDate(_ date:Date, format:String) -> String {
         let newDateFormatter = DateFormatter()
         newDateFormatter.locale = Locale.current
         newDateFormatter.dateFormat = format
@@ -291,7 +302,7 @@ public final class SwiftDateKit {
         return newDateFormatter.string(from: date)
     }
     
-    static public func dateFromString(_ date:String?, format:String) -> Date? {
+     public func dateFromString(_ date:String?, format:String) -> Date? {
         let newDateFormatter = DateFormatter()
         newDateFormatter.dateFormat = format
         let timezone = TimeZone.autoupdatingCurrent
@@ -306,7 +317,7 @@ public final class SwiftDateKit {
         return result
     }
     
-    public static func dateToLocalizedDate(_ aDate:Date, tzName:String) -> Date {
+    public  func dateToLocalizedDate(_ aDate:Date, tzName:String) -> Date {
         var result:Date?
         
         let timeZone:TimeZone? = TimeZone(identifier: tzName)
@@ -318,7 +329,7 @@ public final class SwiftDateKit {
         return result == nil ? aDate : result!
     }
     
-    public static func currentDLCTimeWithFormat(_ format:String) -> String{
+    public  func currentDLCTimeWithFormat(_ format:String) -> String{
         let today = Date()
         let dateFormatter = DateFormatter()
         let timezone = TimeZone.autoupdatingCurrent
@@ -328,15 +339,15 @@ public final class SwiftDateKit {
         
         return dateFormatter.string(from: today)
     }
-    public static func dateToLocalizedDate(_ date:Date) -> Date {
+    public  func dateToLocalizedDate(_ date:Date) -> Date {
         return self.dateToLocalizedDate(date, tzName: "\(TimeZone.autoupdatingCurrent)")
     }
     
-    public static func doubleToLocalizedDate(_ gmtUnixEpoc:Double) -> Date {
+    public func doubleToLocalizedDate(_ gmtUnixEpoc:Double) -> Date {
         return dateToLocalizedDate(Date(timeIntervalSince1970: gmtUnixEpoc / 1000))
     }
     
-    public static func getDefaultTimeUsingDate(_ date : Date, dateFormat:String) -> String {
+    public func getDefaultTimeUsingDate(_ date : Date, dateFormat:String) -> String {
         let dateFormatter: DateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone.autoupdatingCurrent
         dateFormatter.dateFormat = dateFormat
@@ -344,7 +355,7 @@ public final class SwiftDateKit {
         return dateFormatter.string(from: date)
     }
     
-    public static func getDefaultTimeUsingGMTDoubleValue(_ GMTTime : Double, dateFormat:String) -> String {
+    public func getDefaultTimeUsingGMTDoubleValue(_ GMTTime : Double, dateFormat:String) -> String {
         var timestamp : Double = GMTTime
         timestamp = timestamp/1000
         let date : Date = Date(timeIntervalSince1970: timestamp)
@@ -352,11 +363,11 @@ public final class SwiftDateKit {
         return self.getDefaultTimeUsingDate(date, dateFormat: dateFormat)
     }
     
-    static func getGraphDateFormat() -> String {
+    public func getGraphDateFormat() -> String {
         return "yyyy-MM-dd"
     }
     
-    public static func getStartOfDayOnDate(_ date:Date) -> Date {
+    public func getStartOfDayOnDate(_ date:Date) -> Date {
         //default end date - TODAY
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
@@ -366,7 +377,7 @@ public final class SwiftDateKit {
         return dateFormatter.date(from: tempDate)!
     }
     
-    public static func getEndOfDayOnDate(_ date:Date) -> Date {
+    public  func getEndOfDayOnDate(_ date:Date) -> Date {
         //default end date - TODAY
         var components = DateComponents()
         components.hour = 23
@@ -376,7 +387,7 @@ public final class SwiftDateKit {
         return endOfDay!
     }
     
-    public static func getAllDatesBetween(_ beginDate: Date, endDate: Date, incrementUnit:NSCalendar.Unit, withWeekdayIndexFilter:[Int]?) -> [Date]{
+    public  func getAllDatesBetween(_ beginDate: Date, endDate: Date, incrementUnit:NSCalendar.Unit, withWeekdayIndexFilter:[Int]?) -> [Date]{
         
         if(beginDate.compare(endDate) == ComparisonResult.orderedDescending){
             return []
@@ -448,40 +459,36 @@ public final class SwiftDateKit {
             return date1.compare(date2) == ComparisonResult.orderedAscending || date1.compare(date2) == ComparisonResult.orderedSame
         }
     }
-}
-
-//MARK: begin and end for date
-public extension SwiftDateKit {
     
-    static func isThisDateYesterday(_ date : Date) -> Bool {
+    public func isThisDateYesterday(_ date : Date) -> Bool {
         //print("Yesterday Date : \(NSDate.getStartOfDayOnDate(NSDate(timeIntervalSinceNow: -1*24*60*60))) compare Date : \(date)")
-        return SwiftDateKit.getStartOfDayOnDate(Date(timeIntervalSinceNow: -1*24*60*60)).compare(SwiftDateKit.getStartOfDayOnDate(date)) == ComparisonResult.orderedSame //&& NSDate.getStartOfDayOnDate(NSDate()).compare(date) == NSComparisonResult.OrderedAscending
+        return self.getStartOfDayOnDate(Date(timeIntervalSinceNow: -1*24*60*60)).compare(self.getStartOfDayOnDate(date)) == ComparisonResult.orderedSame //&& NSDate.getStartOfDayOnDate(NSDate()).compare(date) == NSComparisonResult.OrderedAscending
     }
     
-    func isThisDateToday(date : Date) -> Bool {
-        let greaterThanStart = SwiftDateKit.getStartOfDayOnDate(Date()).compare(date) == ComparisonResult.orderedAscending
-        let lesserThanEnd = SwiftDateKit.getEndOfDayOnDate(SwiftDateKit.getStartOfDayOnDate(Date())).compare(date) == ComparisonResult.orderedDescending
-        return SwiftDateKit.getStartOfDayOnDate(Date()).compare(date) == ComparisonResult.orderedSame || (greaterThanStart && lesserThanEnd)
+    public func isThisDateToday(date : Date) -> Bool {
+        let greaterThanStart = self.getStartOfDayOnDate(Date()).compare(date) == ComparisonResult.orderedAscending
+        let lesserThanEnd = self.getEndOfDayOnDate(self.getStartOfDayOnDate(Date())).compare(date) == ComparisonResult.orderedDescending
+        return self.getStartOfDayOnDate(Date()).compare(date) == ComparisonResult.orderedSame || (greaterThanStart && lesserThanEnd)
     }
     
-    static func isThisDateTomorrow(_ date : Date) -> Bool {
-        return SwiftDateKit.getStartOfDayOnDate(Date(timeIntervalSinceNow: +1*24*60*60)).compare(SwiftDateKit.getStartOfDayOnDate(date)) == ComparisonResult.orderedSame
+    public func isThisDateTomorrow(_ date : Date) -> Bool {
+        return self.getStartOfDayOnDate(Date(timeIntervalSinceNow: +1*24*60*60)).compare(self.getStartOfDayOnDate(date)) == ComparisonResult.orderedSame
     }
     
-    func isThisFuture(date : Date) -> Bool {
-        return SwiftDateKit.getStartOfDayOnDate(Date()).compare(date) == ComparisonResult.orderedSame || SwiftDateKit.getStartOfDayOnDate(Date()).compare(date) == ComparisonResult.orderedAscending
+    public func isThisFuture(date : Date) -> Bool {
+        return self.getStartOfDayOnDate(Date()).compare(date) == ComparisonResult.orderedSame || self.getStartOfDayOnDate(Date()).compare(date) == ComparisonResult.orderedAscending
     }
     
-    func isThisDateFuture(date : Date) -> Bool {
-        return SwiftDateKit.getStartOfDayOnDate(Date(timeIntervalSinceNow: 1*24*60*60)).compare(SwiftDateKit.getStartOfDayOnDate(date)) == ComparisonResult.orderedSame || SwiftDateKit.getStartOfDayOnDate(Date(timeIntervalSinceNow: +1*24*60*60)).compare(date) == ComparisonResult.orderedAscending
+    public func isThisDateFuture(date : Date) -> Bool {
+        return self.getStartOfDayOnDate(Date(timeIntervalSinceNow: 1*24*60*60)).compare(self.getStartOfDayOnDate(date)) == ComparisonResult.orderedSame || self.getStartOfDayOnDate(Date(timeIntervalSinceNow: +1*24*60*60)).compare(date) == ComparisonResult.orderedAscending
     }
     
-    static func getBeginAndEndWeek(_ fromDate:Date) -> (begin:Date,end:Date)?{
+    public func getBeginAndEndWeek(_ fromDate:Date) -> (begin:Date,end:Date)?{
         let calendar = Calendar.current
         var dateComponents = (calendar as NSCalendar).components([.weekday,.year,.month, .day], from: fromDate)
         dateComponents.day! -= dateComponents.weekday! - 1
         let begginningWeek = calendar.date(from: dateComponents)
-        dateComponents.day! += 7
+        dateComponents.day! += 6
         let endingWeek = calendar.date(from: dateComponents)
         if let begin = begginningWeek{
             if let end = endingWeek{
@@ -491,12 +498,12 @@ public extension SwiftDateKit {
         return nil
     }
     
-    static func getBeginAndEndMonth(_ fromDate:Date) -> (begin:Date,end:Date)?{
+    public func getBeginAndEndMonth(_ fromDate:Date) -> (begin:Date,end:Date)?{
         let calendar = Calendar.current
         var monthDateComponents = (calendar as NSCalendar).components([.weekday,.year,.month, .day], from: fromDate)
         monthDateComponents.day = 1
         let begMonth = calendar.date(from: monthDateComponents)
-        monthDateComponents.month! += 1
+        monthDateComponents.day = 31
         let endMonth = calendar.date(from: monthDateComponents)
         if let begin = begMonth{
             if let end = endMonth{
@@ -506,13 +513,14 @@ public extension SwiftDateKit {
         return nil
     }
     
-    static func getBeginAndEndYear(_ fromDate:Date) -> (begin:Date,end:Date)?{
+    public func getBeginAndEndYear(_ fromDate:Date) -> (begin:Date,end:Date)?{
         let calendar = Calendar.current
         var yearDateComponents = (calendar as NSCalendar).components([.weekday,.year,.month, .day], from: fromDate)
         yearDateComponents.month = 1
         yearDateComponents.day = 1
         let begYear = calendar.date(from: yearDateComponents)
-        yearDateComponents.month! += 12
+        yearDateComponents.month! = 12
+        yearDateComponents.day = 31
         let endYear = calendar.date(from: yearDateComponents)
         if let begin = begYear{
             if let end = endYear{
@@ -522,7 +530,7 @@ public extension SwiftDateKit {
         return nil
     }
     
-    static func getTodayAndYesterdayOfWeek(date : Date)-> (String, String) {
+    public func getTodayAndYesterdayOfWeek(date : Date)-> (String, String) {
         
         let formatter  = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -536,27 +544,27 @@ public extension SwiftDateKit {
         return (self.getDayStringForIntValue(todayValue!), self.getDayStringForIntValue(yesterdayValue!))
     }
     
-    static func getDayStringForIntValue(_ dayInt : Int) -> String {
+     func getDayStringForIntValue(_ dayInt : Int) -> String {
         switch (dayInt) {
         case 1:
-            return "sunday"
+            return "\(Days.Sunday)"
         case 2:
-            return "monday"
+            return "\(Days.Monday)"
         case 3:
-            return "tuesday"
+            return  "\(Days.Tuesday)"
         case 4:
-            return "wednesday"
+            return  "\(Days.Wednesday)"
         case 5:
-            return "thursday"
+            return  "\(Days.Thursday)"
         case 6:
-            return "friday"
+            return  "\(Days.Friday)"
         default:
-            return "saturday"
+            return  "\(Days.Saturday)"
         }
     }
     
     /// Returns a Date with the specified days added to the one it is called with
-    func add(years: Int = 0, months: Int = 0, days: Int = 0, hours: Int = 0, minutes: Int = 0, seconds: Int = 0, to date : Date) -> Date {
+    public func add(years: Int = 0, months: Int = 0, days: Int = 0, hours: Int = 0, minutes: Int = 0, seconds: Int = 0, to date : Date) -> Date {
         var targetDay: Date
         targetDay = Calendar.current.date(byAdding: .year, value: years, to: date)!
         targetDay = Calendar.current.date(byAdding: .month, value: months, to: targetDay)!
@@ -580,6 +588,15 @@ public extension SwiftDateKit {
 }
 
 
+enum Days {
+    case Sunday
+    case Monday
+    case Tuesday
+    case Wednesday
+    case Thursday
+    case Friday
+    case Saturday
+}
 
 extension Array {
     
